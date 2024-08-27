@@ -6,79 +6,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
     <style>
-        /* Add your CSS styling here */
+        /* Enhanced CSS Styling */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f3f7;
             margin: 0;
             padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
+
         .container {
-            width: 50%;
-            margin: 50px auto;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            position: relative; /* Added for positioning the button */
+            width: 100%;
+            max-width: 500px;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
+
         h2 {
             text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .form-group {
             margin-bottom: 20px;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
+
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            color: #555;
         }
+
         .form-group input {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #333;
             box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
         }
+
         .form-group input[type="submit"] {
-            background-color: #4CAF50;
+            background-color: #007bff;
             color: white;
             border: none;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
         }
+
         .form-group input[type="submit"]:hover {
-            background-color: #45a049;
+            background-color: #0056b3;
         }
+
+        .error, .success {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
         .error {
-            color: red;
-            margin-bottom: 10px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
+
         .success {
-            color: green;
-            margin-bottom: 10px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
+
         .login-button {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 10px 20px;
-            background-color: #007bff;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            background-color: #28a745;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             text-decoration: none;
-            font-size: 16px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
         }
+
         .login-button:hover {
-            background-color: #0056b3;
+            background-color: #5a6268;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .form-group input, 
+            .form-group input[type="submit"] {
+                font-size: 14px;
+            }
+
+            .login-button {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="login.php" class="login-button">Login</a>
-        <h2>Register</h2>
+        <h1>Register here to see Users' Details</h1>
+
         <?php
         include('db.php'); // Include the database connection
 

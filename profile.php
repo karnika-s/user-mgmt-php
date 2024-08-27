@@ -23,19 +23,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["image"])) {
     $image = $_FILES["image"];
     if ($image["error"] == UPLOAD_ERR_OK) {
         $targetDir = "uploads/";
-        $targetFile = $targetDir . basename($image["name"]);
-        if (move_uploaded_file($image["tmp_name"], $targetFile)) {
-            $updateSql = "UPDATE users SET image = ? WHERE email = ?";
-            $updateStmt = $conn->prepare($updateSql);
-            $updateStmt->bind_param("ss", $image["name"], $email);
-            if ($updateStmt->execute()) {
-                $success = "Image uploaded successfully.";
-                $user["image"] = $image["name"];
-            } else {
-                $error = "Failed to update image in the database.";
-            }
+        $imageFileType = strtolower(pathinfo($image["name"], PATHINFO_EXTENSION));
+        $newFileName = uniqid() . '.' . $imageFileType;
+        $targetFile = $targetDir . $newFileName;
+
+        // Validate image file type
+        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
+        if (!in_array($imageFileType, $allowedTypes)) {
+            $error = "Only JPG, JPEG, PNG, and GIF files are allowed.";
         } else {
-            $error = "Failed to upload image.";
+            if (move_uploaded_file($image["tmp_name"], $targetFile)) {
+                // Update user data with new image path
+                $updateSql = "UPDATE users SET image = ? WHERE email = ?";
+                $updateStmt = $conn->prepare($updateSql);
+                $updateStmt->bind_param("ss", $newFileName, $email);
+                if ($updateStmt->execute()) {
+                    $success = "Image uploaded successfully.";
+                    $user["image"] = $newFileName;
+                } else {
+                    $error = "Failed to update image in the database.";
+                }
+            } else {
+                $error = "Failed to upload image.";
+            }
         }
     } else {
         $error = "Error in file upload.";
@@ -62,54 +72,71 @@ $conn->close();
         }
         .container {
             width: 50%;
-            margin: 0 auto;
+            margin: 20px auto;
             background-color: #fff;
-            padding: 20px;
+            padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            font-weight: bold;
         }
         .form-group input, .form-group img {
             width: 100%;
+            padding: 10px;
             box-sizing: border-box;
-        }
-        .form-group img {
-            max-width: 200px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+        .form-group img {
+            max-width: 150px;
+            margin-bottom: 15px;
+            display: block;
+            border-radius: 50%;
+        }
         .form-group input[type="file"] {
-            padding: 0;
+            padding: 3px;
         }
         .form-group input[type="submit"] {
-            background-color: #4CAF50;
+            background-color: #007bff;
             color: white;
             border: none;
+            padding: 10px;
             cursor: pointer;
+            font-size: 16px;
         }
         .form-group input[type="submit"]:hover {
             background-color: #45a049;
         }
         .error, .success {
-            color: red;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .error {
+            color: #d8000c;
+            background-color: #ffbaba;
         }
         .success {
-            color: green;
+            color: #4F8A10;
+            background-color: #007bfF;
         }
         .back-btn {
             display: inline-block;
-            padding: 10px 20px;
-            background-color: #4CAF50;
+            padding: 12px 25px;
+            background-color: #007bff;
             color: white;
             text-decoration: none;
             border-radius: 5px;
+            font-size: 16px;
+        }
+        .back-btn:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
@@ -140,12 +167,12 @@ $conn->close();
             </div>
             <div class="form-group">
                 <label for="image">Profile Image</label>
-                <?php if ($user['image']): ?>
+                <?php if (!empty($user['image'])): ?>
                     <img src="uploads/<?php echo htmlspecialchars($user['image']); ?>" alt="Profile Image">
                 <?php else: ?>
                     <p>No image uploaded</p>
                 <?php endif; ?>
-                <input type="file" id="image" name="image">
+                <input type="file" id="image" name="image" accept="image/*">
             </div>
             <div class="form-group">
                 <input type="submit" value="Upload Image">

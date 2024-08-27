@@ -71,49 +71,68 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Edit User</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
             margin: 0;
             padding: 0;
         }
         .container {
-            width: 50%;
-            margin: 50px auto;
+            width: 90%;
+            max-width: 600px;
+            margin: 60px auto;
             background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         h2 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            color: #333;
+            font-weight: normal;
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #555;
         }
         .form-group input {
             width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
         }
         .form-group input[type="submit"] {
-            background-color: #4CAF50;
+            background-color: #007bff;
             color: white;
             border: none;
-            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
         }
         .form-group input[type="submit"]:hover {
-            background-color: #45a049;
+            background-color: #0056b3;
         }
         .error {
-            color: red;
-            margin-bottom: 10px;
+            color: #d9534f;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .success {
+            color: #28a745;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .readonly {
+            background-color: #e9ecef;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -131,7 +150,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required readonly>
+                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required readonly class="readonly">
             </div>
             <div class="form-group">
                 <label for="mobile_number">Mobile Number</label>

@@ -24,69 +24,130 @@ $result = $conn->query($sql);
     <title>Welcome</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fa;
             margin: 0;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+
         h2 {
-            text-align: center;
             margin-bottom: 20px;
+            font-size: 2rem;
+            color: #333;
         }
+
         table {
             width: 100%;
+            max-width: 1000px;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
         }
-        table, th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+
+        th, td {
+            padding: 15px;
             text-align: left;
+            border-bottom: 1px solid #ddd;
         }
+
         th {
-            background-color: #4CAF50;
+            background-color: #007bff;
             color: white;
+            font-weight: bold;
         }
+
         tr:nth-child(even) {
-            background-color: #f2f2f2;
+            background-color: #f9f9f9;
         }
+
         tr:hover {
-            background-color: #ddd;
+            background-color: #e6f7ff;
         }
+
         .action-btn {
-            padding: 5px 10px;
-            background-color: #4CAF50;
+            padding: 8px 15px;
+            margin: 2px;
             color: white;
             border: none;
             text-decoration: none;
-            border-radius: 3px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
+
         .action-btn.edit {
-            background-color: #2196F3;
+            background-color: #28a745;
         }
+
         .action-btn.delete {
-            background-color: #f44336;
+            background-color: #dc3545;
         }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
         .logout-btn {
-            display: inline-block;
             padding: 10px 20px;
-            background-color: #4CAF50;
+            background-color: #ff6b6b;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
         }
+
+        .logout-btn:hover {
+            background-color: #e63946;
+        }
+
         .profile-link {
-            color: #2196F3;
+            color: #007bff;
             text-decoration: none;
+            font-weight: bold;
         }
+
         .profile-link:hover {
             text-decoration: underline;
         }
+
         .profile-img {
             max-width: 50px;
             max-height: 50px;
             border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            table {
+                width: 100%;
+                overflow-x: auto;
+                display: block;
+            }
+
+            th, td {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+
+            .action-btn {
+                font-size: 0.8rem;
+            }
+
+            .logout-btn {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -124,6 +185,8 @@ $result = $conn->query($sql);
                     echo "<td>" . $row['dob'] . "</td>";
                     echo "<td>";
                     echo "<a href='edit_user.php?id=" . $row['id'] . "' class='action-btn edit'>Edit</a> ";
+                    echo "<br>";
+                    echo "<br>"; 
                     echo "<a href='#' class='action-btn delete' onclick=\"confirmDelete(" . $row['id'] . ")\">Delete</a>";
                     echo "</td>";
                     echo "</tr>";
