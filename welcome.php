@@ -124,6 +124,24 @@ $result = $conn->query($sql);
             border-radius: 50%;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+        .message {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.message.success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
 
         @media (max-width: 600px) {
             body {
@@ -153,7 +171,10 @@ $result = $conn->query($sql);
 </head>
 <body>
     <h2>Welcome, <a href="profile.php" class="profile-link"><?php echo htmlspecialchars($_SESSION['email']); ?></a>!</h2>
-    
+    <?php if (isset($_SESSION['message'])): ?>
+        <div class="message"><?php echo htmlspecialchars($_SESSION['message']); ?></div>
+        <?php unset($_SESSION['message']); ?>
+    <?php endif; ?>
     <table>
         <thead>
             <tr>

@@ -1,5 +1,7 @@
 <?php
 session_start();
+
+// Check if the user is logged in
 if (!isset($_SESSION['email'])) {
     header("Location: login.php");
     exit();
@@ -8,58 +10,49 @@ if (!isset($_SESSION['email'])) {
 // Include database connection
 include('db.php');
 
-// Check if the user ID is provided
-if (isset($_GET['id'])) {
-    $user_id = $_GET['id'];
+// Fetch user details from the database
+$email = $_SESSION['email'];
+$user_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-    // Fetch user data based on ID
-    $sql = "SELECT * FROM users WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
+// Fetch user data
+$sql = "SELECT id, firstname, lastname, email, mobile_number, dob FROM users WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
 
-    if (!$user) {
-        echo "User not found!";
-        exit();
-    }
-} else {
-    echo "No user ID provided!";
+if (!$user) {
+    echo "User not found.";
     exit();
 }
 
-// Handle form submission for updating user data
+// Check if the logged-in user is trying to delete their own profile
+if ($user['email'] !== $email) {
+    $_SESSION['message'] = "You can only edit your own profile.";
+    header("Location: welcome.php");
+    exit();
+}
+
+// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitize and validate input
     $firstname = $_POST['firstname'];
     $lastname = $_POST['lastname'];
-    $email = $_POST['email'];
     $mobile_number = $_POST['mobile_number'];
     $dob = $_POST['dob'];
 
-    // Check if all fields are filled
-    if (!empty($firstname) && !empty($lastname) && !empty($mobile_number) && !empty($dob)) {
-        // Validate mobile number
-        if (!preg_match('/^\d{10}$/', $mobile_number)) {
-            echo "Mobile number must be exactly 10 digits.";
-        } else {
-            // Update user data in the database
-            $update_sql = "UPDATE users SET firstname=?, lastname=?, mobile_number=?, dob=? WHERE id=?";
-            $update_stmt = $conn->prepare($update_sql);
-            $update_stmt->bind_param("ssssi", $firstname, $lastname, $mobile_number, $dob, $user_id);
+    $updateSql = "UPDATE users SET firstname = ?, lastname = ?, mobile_number = ?, dob = ? WHERE id = ?";
+    $updateStmt = $conn->prepare($updateSql);
+    $updateStmt->bind_param("ssssi", $firstname, $lastname, $mobile_number, $dob, $user_id);
 
-            if ($update_stmt->execute()) {
-                header("Location: welcome.php");
-                exit();
-            } else {
-                echo "Error updating record: " . $conn->error;
-            }
-        }
+    if ($updateStmt->execute()) {
+        $success = "Profile updated successfully.";
     } else {
-        echo "Please fill all fields.";
+        $error = "Failed to update profile.";
     }
 }
+
+// Close the database connection
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -72,74 +65,92 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
+            background-color: #f4f7fa;
             margin: 0;
-            padding: 0;
+            padding: 20px;
         }
+
         .container {
-            width: 90%;
             max-width: 600px;
-            margin: 60px auto;
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 12px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-            font-weight: normal;
-        }
-        .form-group {
             margin-bottom: 20px;
+            font-size: 1.8rem;
+            color: #333;
         }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
         .form-group label {
             display: block;
+            margin-bottom: 5px;
             font-weight: bold;
-            margin-bottom: 6px;
-            color: #555;
         }
+
         .form-group input {
             width: 100%;
-            padding: 10px;
+            padding: 8px;
+            box-sizing: border-box;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
+            border-radius: 4px;
         }
+
         .form-group input[type="submit"] {
-            background-color: #007bff;
+            background-color: #28a745;
             color: white;
             border: none;
-            font-size: 16px;
-            font-weight: bold;
-            transition: background-color 0.3s;
+            cursor: pointer;
+            font-size: 1rem;
         }
+
         .form-group input[type="submit"]:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
-        .error {
-            color: #d9534f;
-            font-size: 14px;
-            margin-bottom: 15px;
-            text-align: center;
+
+        .error, .success {
+            color: red;
+            margin-bottom: 10px;
         }
+
         .success {
-            color: #28a745;
-            font-size: 14px;
-            margin-bottom: 15px;
-            text-align: center;
+            color: green;
         }
-        .readonly {
-            background-color: #e9ecef;
-            cursor: not-allowed;
+
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .back-btn:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Edit User</h2>
-        <form method="POST" action="">
+        <h2>Edit Your Profile</h2>
+        
+        <?php if (isset($error)): ?>
+            <div class="error"><?php echo htmlspecialchars($error); ?></div>
+        <?php endif; ?>
+        
+        <?php if (isset($success)): ?>
+            <div class="success"><?php echo htmlspecialchars($success); ?></div>
+        <?php endif; ?>
+        
+        <form method="POST">
             <div class="form-group">
                 <label for="firstname">First Name</label>
                 <input type="text" id="firstname" name="firstname" value="<?php echo htmlspecialchars($user['firstname']); ?>" required>
@@ -149,26 +160,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="text" id="lastname" name="lastname" value="<?php echo htmlspecialchars($user['lastname']); ?>" required>
             </div>
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required readonly class="readonly">
-            </div>
-            <div class="form-group">
                 <label for="mobile_number">Mobile Number</label>
                 <input type="text" id="mobile_number" name="mobile_number" value="<?php echo htmlspecialchars($user['mobile_number']); ?>" required>
             </div>
             <div class="form-group">
                 <label for="dob">Date of Birth</label>
-                <input type="date" id="dob" name="dob" value="<?php echo htmlspecialchars($user['dob']); ?>" required>
+                <input type="text" id="dob" name="dob" value="<?php echo htmlspecialchars($user['dob']); ?>" required>
             </div>
             <div class="form-group">
-                <input type="submit" value="Update User">
+                <input type="submit" value="Update Profile">
             </div>
         </form>
+
+        <a href="welcome.php" class="back-btn">Back to Welcome Page</a>
     </div>
+
+    <script>
+        // Display the error message if any
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        if (error) {
+            alert(error);
+        }
+    </script>
 </body>
 </html>
-
-<?php
-// Close the database connection
-$conn->close();
-?>
